@@ -6,7 +6,7 @@
 /*   By: ampjimen <ampjimen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 19:01:31 by ampjimen          #+#    #+#             */
-/*   Updated: 2024/05/21 19:13:00 by ampjimen         ###   ########.fr       */
+/*   Updated: 2024/05/21 19:30:45 by ampjimen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void ft_strcpy(char *dst, const char *src)
 
 char *ft_strdup(const char *src)
 {
-    size_t len = ft_strlen(src);
+    size_t len = ft_strlen(src + 1);
     char *dst = malloc(len);
 
     if(dst == NULL)
@@ -67,19 +67,19 @@ char *ft_strjoin(char *s1, char const *s2)
 
 char *get_next_line(int fd)
 {
-    static char buf[BUFFER_SIZE];
+    static char buf[BUFFER_SIZE + 1];
     char *line;
     char *newline;
     int count;
     int to_copy;
 
     line = ft_strdup(buf);
-    while (!(newline = strchr(line, '\n')) && (count = read(fd, buf, BUFFER_SIZE)))
+    while (!(newline = ft_strchr(line, '\n')) && (count = read(fd, buf, BUFFER_SIZE)))
     {
         buf[count] = '\0';
         line = ft_strjoin(line, buf);
     }
-    if(ft_strlen == 0)
+    if(ft_strlen(line) == 0)
         return(free(line), NULL);
     if(newline != NULL)
     {
@@ -93,4 +93,29 @@ char *get_next_line(int fd)
     }
     line[to_copy] = '\0';
     return(line);
+}
+
+#include <fcntl.h>
+#include <stdio.h>
+
+int main(void)
+{
+    const char *filename = "archivo.txt";
+
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1)
+    {
+        perror("Error opening file");
+        return (1);
+    }
+
+    char *line;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("%s", line);
+        free(line);
+    }
+
+    close(fd);
+    return (0);
 }
